@@ -1,0 +1,13 @@
+{
+    "name": "vicii_diag",
+    "description": "Project vicii_diag",
+    "toolkit": "kick",
+    "sources": [
+        "test1.asm"
+    ],
+    "build": "debug",
+    "definitions": [],
+    "includes": [],
+    "args": [],
+    "compiler": ""
+}
