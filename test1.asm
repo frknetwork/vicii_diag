@@ -1,7 +1,9 @@
-            * = $80 "ZP"
-crom:       .dword $1000 // Store the location of the character ROM in ZP
-cdest1:     .dword $5000 // Character ROM location for Bank 1
-cdest3:     .dword $D000 // Character ROM location for Bank 3
+            * = $43 "crom"
+crom:       .word // Store the location of the character ROM in ZP
+            * = $45 "cdest1"
+cdest1:     .word // Character ROM location for Bank 1
+//            * = $FD "cdest3"
+//cdest3:     .word // Character ROM location for Bank 3
 
             * = $0400 "Bank0"
 bank0:
@@ -18,11 +20,29 @@ BasicUpstart2(start)
 start: 		
             // Copy character ROM to locations where banks
             // 1 and 3 can access the data.
-            ldy #$FF         
-cloop:      lda ($80),y    
-            sta $0400,y    
-            dey            
-            bpl cloop      
+            // Set up pointers to the data we want to copy in ZP
+            lda #0
+            sta crom
+            sta cdest1
+//            sta cdest3
+            lda $10 // Character ROM is at $1000
+            sta crom + 1
+            lda $50 // Bank 1 will look for char set at $5000
+            sta cdest1 + 1
+            lda $D0 // Bank 3 will look for char set at $D000
+//            sta cdest3 + 1
+            ldy #0         
+cloop:      lda (crom),y    
+            sta (cdest1),y
+//            sta (cdest3),y
+            iny
+            bne cloop
+            inc crom
+            inc cdest1
+//            inc cdest3
+            lda #$1f
+            cmp crom
+            bne cloop 
 
             // There are 2 page select bits in the bottom
             // 2 bits of $DD00. They are active LOW, so
