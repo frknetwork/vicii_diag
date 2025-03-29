@@ -2,8 +2,8 @@
 crom:       .word // Store the location of the character ROM in ZP
             * = $45 "cdest1"
 cdest1:     .word // Character ROM location for Bank 1
-//            * = $FD "cdest3"
-//cdest3:     .word // Character ROM location for Bank 3
+            * = $FD "cdest3"
+cdest3:     .word // Character ROM location for Bank 3
 
             * = $0400 "Bank0"
 bank0:
@@ -14,7 +14,7 @@ bank0:
             .fill 624,'0'
 
 BasicUpstart2(start)
-        	* = $2000 "Code"
+        	* = $0810 "Code"
             .const PAGE_SELECT = $DD00
             .const CURRENT_PAGE = $02
 start: 		
@@ -24,24 +24,24 @@ start:
             lda #0
             sta crom
             sta cdest1
-//            sta cdest3
-            lda $10 // Character ROM is at $1000
+            sta cdest3
+            lda #$10 // Character ROM is at $1000
             sta crom + 1
-            lda $50 // Bank 1 will look for char set at $5000
+            lda #$50 // Bank 1 will look for char set at $5000
             sta cdest1 + 1
-            lda $D0 // Bank 3 will look for char set at $D000
-//            sta cdest3 + 1
+            lda #$D0 // Bank 3 will look for char set at $D000
+            sta cdest3 + 1
             ldy #0         
 cloop:      lda (crom),y    
             sta (cdest1),y
-//            sta (cdest3),y
+            sta (cdest3),y
             iny
             bne cloop
-            inc crom
-            inc cdest1
-//            inc cdest3
+            inc crom + 1
+            inc cdest1 + 1
+            inc cdest3 + 1
             lda #$1f
-            cmp crom
+            cmp crom + 1
             bne cloop 
 
             // There are 2 page select bits in the bottom
