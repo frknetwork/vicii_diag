@@ -8,16 +8,18 @@ cdest3:     .word // Character ROM location for Bank 3
             * = $0400 "Bank0"
 bank0:
             .text "bank 0                                  "
-            .text "press any key to switch banks           "
+            .text "press space to switch banks             "
+            .text "f1 to switch character sets             "
+            .text "any other key to exit                   "
             .text "                                        "
             .fill 256,i  // Write out the full character set.
-            .fill 624,'0'
+            .fill 544,'0'
 
 BasicUpstart2(start)
         	* = $0810 "Code"
-            .const PAGE_SELECT = $DD00
-            .const CURRENT_PAGE = $02
-start: 		
+            .const BANK_SELECT = $DD00
+            .const CURRENT_BANK = $02
+start:
             sei // Disable interrupts
             // Copy character ROM to locations where banks
             // 1 and 3 can access the data.
@@ -37,8 +39,8 @@ start:
             sta cdest1 + 1
             lda #$D0 // Bank 3 will look for char set at $D000
             sta cdest3 + 1
-            ldy #0         
-cloop:      lda (crom),y    
+            ldy #0
+cloop:      lda (crom),y
             sta (cdest1),y
             sta (cdest3),y
             iny
@@ -48,7 +50,7 @@ cloop:      lda (crom),y
             inc cdest3 + 1
             lda #$DF
             cmp crom + 1
-            bne cloop 
+            bne cloop
 
             // Map the character ROM back out of CPU space so we can
             // access IO registers
@@ -59,49 +61,66 @@ cloop:      lda (crom),y
             // Re-enable interrupts
             cli
 
-            // There are 2 page select bits in the bottom
+            // There are 2 bank select bits in the bottom
             // 2 bits of $DD00. They are active LOW, so
-            // Page 0 = both bits on, Page 1 = bottom bit off, etc.
-            // Init our current page to page 0 (#3) 
+            // Bank 0 = both bits on, bank 1 = bottom bit off, etc.
+            // Init our current bank to bank 0 (#3) 
 init:       lda #3
-            sta CURRENT_PAGE
+            sta CURRENT_BANK
 loop:
-            lda PAGE_SELECT
+            lda BANK_SELECT
             and #$FC
-            ora CURRENT_PAGE
-            sta PAGE_SELECT
+            ora CURRENT_BANK
+            sta BANK_SELECT
 poll:       jsr $FFE4        // Calling KERNAL GETIN 
             beq poll
-            dec CURRENT_PAGE
+            cmp #$20
+            bne notspace
+            dec CURRENT_BANK
             // If we decrement past 0, jump back to the beginning and init back
-            // to page 0
+            // to bank 0
             lda #$FF
-            cmp CURRENT_PAGE
+            cmp CURRENT_BANK
             beq init
             jmp loop
-exit: // TODO create a way to get here
+
+notspace:   cmp #$85 // F1 key
+            bne notf1
+            lda $D018
+            eor #2
+            sta $D018
+            jmp loop
+notf1:
+exit:
+            // TODO flip back to bank 0 and charter set 1
             rts  // Return to basic
 
             * = $4400 "Bank1"
 bank1:
             .text "bank 1                                  "
-            .text "press any key to switch banks           "
+            .text "press space to switch banks             "
+            .text "any other key to exit                   "
+            .text "f1 to switch character sets             "
             .text "                                        "
             .fill 256,i  // Write out the full character set.
-            .fill 624,'1'
+            .fill 544,'1'
 
             * = $8400 "Bank2"
 bank2:
             .text "bank 2                                  "
-            .text "press any key to switch banks           "
+            .text "press space to switch banks             "
+            .text "any other key to exit                   "
+            .text "f1 to switch charcater sets             "
             .text "                                        "
             .fill 256,i  // Write out the full character set.
-            .fill 624,'2'
+            .fill 544,'2'
 
             * = $C400 "Bank3"
 bank3:
             .text "bank 3                                  "
-            .text "press any key to switch banks           "
+            .text "press space to switch banks             "
+            .text "f1 to switch character sets             "
+            .text "any other key to exit                   "
             .text "                                        "
             .fill 256,i  // Write out the full character set.
-            .fill 624,'3'
+            .fill 544,'3'
