@@ -18,14 +18,20 @@ BasicUpstart2(start)
             .const PAGE_SELECT = $DD00
             .const CURRENT_PAGE = $02
 start: 		
+            sei // Disable interrupts
             // Copy character ROM to locations where banks
             // 1 and 3 can access the data.
+            // Map the character ROM into CPU readable space
+            lda 1
+            and #$FB
+            sta 1
+
             // Set up pointers to the data we want to copy in ZP
             lda #0
             sta crom
             sta cdest1
             sta cdest3
-            lda #$10 // Character ROM is at $1000
+            lda #$D0 // Character ROM is at $D000
             sta crom + 1
             lda #$50 // Bank 1 will look for char set at $5000
             sta cdest1 + 1
@@ -40,9 +46,18 @@ cloop:      lda (crom),y
             inc crom + 1
             inc cdest1 + 1
             inc cdest3 + 1
-            lda #$1f
+            lda #$DF
             cmp crom + 1
             bne cloop 
+
+            // Map the character ROM back out of CPU space so we can
+            // access IO registers
+            lda 1
+            ora #$04
+            sta 1
+
+            // Re-enable interrupts
+            cli
 
             // There are 2 page select bits in the bottom
             // 2 bits of $DD00. They are active LOW, so
@@ -66,8 +81,6 @@ poll:       jsr $FFE4        // Calling KERNAL GETIN
             jmp loop
 exit: // TODO create a way to get here
             rts  // Return to basic
-
-// Todo load character set for banks 1 and 3
 
             * = $4400 "Bank1"
 bank1:
