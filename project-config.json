@@ -3,7 +3,7 @@
     "description": "Project vicii_diag",
     "toolkit": "kick",
     "sources": [
-        "test1.asm"
+        "text_test.asm"
     ],
     "build": "debug",
     "definitions": [],
