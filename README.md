@@ -35,17 +35,25 @@ Start with a mostly working machine. You should be able to get to the
 
 Load the program. Your screen will immediately fill with text because
 the program loaded data into screen RAM, but the program isn't running
-yet.
-<todo insert screen shot here>
+yet.\
+![This is a screen shot. It shows roughly what your screen might look
+like after loading this program](/load.png)
 
 Arrow to a blank line and type "RUN". Then tap space. The screen should
 change to a similar page, but it should say "BANK1" at the top and
-the bottom of the page should be filled with 1s.
+the bottom of the page should be filled with 1s.\
+![This is a screen shot. It shows what your screen should look
+like after running the program and tapping space once](/bank1.png)
 
-Keep tapping space. It should flip between banks 0 thru 3 and then back
-to 0.
+Keep tapping space. It should flip between banks 0,1,2,3 and then back
+to 0.\
+![This is a screen shot. It shows what your screen should look
+like after running the program and tapping space three times](/bank3.png)
+
 Now tap F1. The font should toggle between the standard C64 font with PETSCII
-characters and a mixed upper/lower case font.
+characters and a mixed upper/lower case font.\
+![This is a screen shot. It shows what your screen might look
+like after running the program and tapping F1](/lower.png)
 
 If you see anything weird, you have a fault.
 
