@@ -120,4 +120,5 @@ A: No.
 
 Q: I want to fork your code to do something else. Can I?\
 A: Sure. So long as you comply with the license, INCLUDING
-the restriction on no use in AI, and ensure that 
+the restriction on no use in AI, and ensure that the license
+is carried over.
