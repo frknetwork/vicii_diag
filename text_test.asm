@@ -79,11 +79,11 @@ bankdata:
     // We'll use immediate mode for the source so no need for a pointer for it
     lda #0
     sta dest1
-    lda location
+    lda #location
     sta dest1 + 1
 
-loop:
     ldy #bankdatasize
+loop:
     lda bankdata,y
     sta (dest1),y
     dey
@@ -91,34 +91,47 @@ loop:
 }
 
 BasicUpstart2(start)
-        	* = $1000 "Code"
+        	* = $4000 "Code"
 start: 		
     SetupCharsets()
-    // SetupBank('0', $04)
+    SetupBank('0', $04)
     // There are 2 page select bits in the bottom
     // 2 bits of $DD00. They are active LOW, so
     // Page 0 = both bits on, Page 1 = bottom bit off, etc.
     // Init our current page to page 0 (#3) 
     .const PAGE_SELECT = $DD00
     .const CURRENT_PAGE = $02
+    .const BANK_SELECT = $DD00
+    .const CURRENT_BANK = $02
 init:
     lda #3
-    sta CURRENT_PAGE
+    sta CURRENT_BANK
 loop:
-    lda PAGE_SELECT
+    lda BANK_SELECT
     and #$FC
-    ora CURRENT_PAGE
-    sta PAGE_SELECT
+    ora CURRENT_BANK
+    sta BANK_SELECT
 poll:
     jsr $FFE4        // Calling KERNAL GETIN 
     beq poll
-    dec CURRENT_PAGE
+    cmp #$20
+    bne notspace
+    dec CURRENT_BANK
     // If we decrement past 0, jump back to the beginning and init back
-    // to page 0
+    // to bank 0
     lda #$FF
-    cmp CURRENT_PAGE
+    cmp CURRENT_BANK
     beq init
     jmp loop
+
+notspace:
+    cmp #$85 // F1 key
+    bne notf1
+    lda $D018
+    eor #2
+    sta $D018
+    jmp loop
+notf1:
 exit:
     // TODO Clear screen and return to bank 0
     rts  // Return to basic
