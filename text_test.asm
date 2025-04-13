@@ -15,7 +15,12 @@ dest3:     .word */
 .watch dest1
 .var dest3 = $FD
 .watch dest3
-            
+
+.const charrom = $D000
+.const char1 = $5000
+.const char3 = $D000
+.const charset_size = $1000
+
 .macro SetupCharsets() {
     // Copy character ROM to locations where banks
     // 1 and 3 can access the data.
@@ -24,11 +29,11 @@ dest3:     .word */
     sta src
     sta dest1
     sta dest3
-    lda #$10 // Character ROM is at $1000
+    lda #>charrom
     sta src + 1
-    lda #$50 // Bank 1 will look for char set at $5000
+    lda #>char1
     sta dest1 + 1
-    lda #$D0 // Bank 3 will look for char set at $D000
+    lda #>char3
     sta dest3 + 1
 
     sei // Disable interrupts
@@ -52,8 +57,8 @@ loop:
     inc dest1 + 1
     inc dest3 + 1
     
-    // Finish once we've copied all the way to $1FFF
-    lda #$1f  // TODO should this be #$20?
+    // Finish once we've copied the full character set
+    lda #>(char3+charset_size)
     cmp src + 1
     bne loop 
 
@@ -68,33 +73,70 @@ loop:
 }
 
 bankdata:
-    .text "bank N                                  "
+    .text @"bank \$00                                  "
     .text "press space to switch banks             "
     .text "press f1 to switch character set        "
     .text "                                        "
-.var bankdatasize = 40 * 4
+    .fill 256,i  // Write out the full character set.
+    .fill 584, 0
+.const chars_per_line = 40
+.const lines = 25
 
-.macro SetupBank(fill_char, location) {
-    // Set up our destination pointer in ZP
-    // We'll use immediate mode for the source so no need for a pointer for it
+.macro IncrementPointer(pointer, count) {
+    lda #count
+    clc
+    adc pointer
+    sta pointer
     lda #0
-    sta dest1
-    lda #location
-    sta dest1 + 1
-
-    ldy #bankdatasize
-loop:
-    lda bankdata,y
-    sta (dest1),y
-    dey
-    bne loop
+    adc pointer + 1
+    sta pointer + 1
 }
 
+.macro SetupBank(fill_char, location) {
+    // Set up our source and destination pointers in ZP
+    lda #<location
+    sta dest1
+    lda #>location
+    sta dest1 + 1
+
+    lda #<bankdata
+    sta src
+    lda #>bankdata
+    sta src + 1
+
+    ldx #0
+outloop:
+    ldy #0
+loop:
+    lda (src),y
+    bne nonzero // If we read a NULL character, write our fill character instead.
+    lda #fill_char
+nonzero:
+    sta (dest1),y
+    iny
+    cpy #chars_per_line
+    bne loop
+    IncrementPointer(dest1, chars_per_line)
+    IncrementPointer(src, chars_per_line)
+    inx
+    cpx #lines
+    bne outloop
+}
+
+.const bank0 = $0400
+.const bank1 = $4400
+.const bank2 = $8400
+.const bank3 = $C400
+
 BasicUpstart2(start)
-        	* = $4000 "Code"
 start: 		
     SetupCharsets()
-    SetupBank('0', $04)
+    SetupBank('0', bank0)
+    SetupBank('1', bank1)
+    SetupBank('2', bank2)
+    SetupBank('3', bank3)
+
+
     // There are 2 page select bits in the bottom
     // 2 bits of $DD00. They are active LOW, so
     // Page 0 = both bits on, Page 1 = bottom bit off, etc.
