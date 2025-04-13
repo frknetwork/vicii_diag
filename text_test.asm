@@ -1,14 +1,4 @@
-// Set up a pointer in ZP for reads
-// TODO try doing this with variables and .watch
-/* * = $43 "src"
-src:       .word 
-
-// Set up 2 pointers in ZP for writes
-* = $45 "dest1"
-dest1:     .word
-* = $FD "dest3"
-dest3:     .word */
-
+// Set up pointers in ZP
 .var src = $43
 .watch src
 .var dest1 = $45
