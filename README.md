@@ -17,33 +17,32 @@ memory VERY differently from the CPU. Specifically:
 * It can't access kernel or BASIC ROMs or access IO addresses. It ONLY sees RAM and character ROM.
 
 I guessed that something was failing when some games tried to point the
-VICII at diffent 16k banks. I'd wanted to learn 6502 assembly anyway, so I
+VICII at different 16k banks. I'd wanted to learn 6502 assembly anyway, so I
 decided to hack together a "quick" test to exercise the paging.
 
 It ended up taking a LOT longer to write the test than to actually figure
 out the problem on my machine. :-) (The problem was a bad socket on U14).
 
-Please forgive the ugliness of my code. It's been a decade or two since I've
-written assembly and never for the 6502 and Kick Assembler. I should really
-make more consistent use of constants, and use scoping and macros to make
-stuff easier to read. It would also be better to populate memory pages at
-run time rather than abusing the loader the way I am. Oh well. :-)
+It's been a couple of decades since I hacked on any sort of assembly. I
+was always more of a C/C++ person even then. I'm also completely new to
+6502 and Kick Assembler. If you have suggestions for improving things
+LMK.
 
 # How to use this test
 Start with a mostly working machine. You should be able to get to the
 "ready" screen and be able to load and run a program.
 
-Load the program. Your screen will immediately fill with text because
-the program loaded data into screen RAM, but the program isn't running
-yet.\
-![This is a screen shot. It shows roughly what your screen might look
-like after loading this program](/load.png)
-
-Arrow to a blank line and type "RUN". Then tap space. The screen should
-change to a similar page, but it should say "BANK1" at the top and
-the bottom of the page should be filled with 1s.\
+Load the program and type "RUN". You should see this:
 ![This is a screen shot. It shows what your screen should look
 like after running the program and tapping space once](/bank1.png)
+![This is a screen shot. It shows what your screen should look
+like after running the program.](/bank0.png)
+
+Tap space. The screen should change to a similar page, but it should
+say "BANK1" at the top and the bottom of the page should be filled
+with 1s.\
+![This is a screen shot. It shows what your screen should look
+like after running the program and tapping space once.](/bank1.png)
 
 Keep tapping space. It should flip between banks 0,1,2,3 and then back
 to 0.\
@@ -89,7 +88,7 @@ The character set is wrong on pages 0 and 2 but right on 1 and 3 (or the
 opposite).
 ### What's up:
 The VICII might be able to access RAM but not the character ROM (or the
-opposite). Take a look at the chip select line on that character ROM. If
+opposite). Take a look at the chip select line on the character ROM. If
 this happens, I suspect the PLA.
 
 
