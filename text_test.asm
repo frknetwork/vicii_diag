@@ -137,12 +137,10 @@ start:
     SetupBank('3', bank3)
 
 
-    // There are 2 page select bits in the bottom
+    // There are 2 bank select bits in the bottom
     // 2 bits of $DD00. They are active LOW, so
-    // Page 0 = both bits on, Page 1 = bottom bit off, etc.
-    // Init our current page to page 0 (#3) 
-    .const PAGE_SELECT = $DD00
-    .const CURRENT_PAGE = $02
+    // Bank 0 = both bits on, bank 1 = bottom bit off, etc.
+    // Init our current bank to bank 0 (#3) 
     .const BANK_SELECT = $DD00
     .const CURRENT_BANK = $02
 init:
@@ -175,5 +173,5 @@ notspace:
     jmp loop
 notf1:
 exit:
-    // TODO Clear screen and return to bank 0
+    // TODO Clear screen and return to bank 0 and normal font
     rts  // Return to basic
