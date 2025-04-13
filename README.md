@@ -32,7 +32,7 @@ LMK.
 Start with a mostly working machine. You should be able to get to the
 "ready" screen and be able to load and run a program.
 
-Load the program and type "RUN". You should see this:
+Load the program and type "RUN". You should see this:\
 ![This is a screen shot. It shows what your screen should look
 like after running the program.](/bank0.png)
 
